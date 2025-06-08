@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Studio by Jamessoft</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #eaf2f8, #c1d9ed); /* Softer, wider light blue gradient */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #004d99;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.25); /* Slightly stronger shadow */
+            margin-bottom: 30px;
+            font-weight: 700;
+            letter-spacing: 0.8px; /* Slightly increased letter spacing */
+            font-size: 2.5em; /* Larger title */
+        }
+
+        /* Aero-themed button styles */
+        .aero-button {
+            background: linear-gradient(to bottom, #d4e3f4 0%, #a7c8ed 100%);
+            border: 1px solid #7faccc;
+            border-radius: 10px; /* More rounded */
+            color: #2a5a8e;
+            padding: 14px 28px; /* Even larger padding */
+            font-size: 17px; /* Slightly larger font */
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 3px 7px rgba(0,0,0,0.2); /* More prominent shadow */
+            text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+            transition: all 0.25s ease-in-out; /* Slightly longer transition */
+            margin: 10px; /* Increased margin */
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; /* Increased space for icon */
+        }
+
+        .aero-button:hover {
+            background: linear-gradient(to bottom, #a7c8ed 0%, #d4e3f4 100%);
+            border-color: #5d92b9;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25); /* Stronger hover shadow */
+            transform: translateY(-2px); /* More noticeable lift */
+        }
+
+        .aero-button:active {
+            background: linear-gradient(to bottom, #9cb7d6 0%, #8caad4 100%);
+            border-color: #4b789e;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); /* Stronger press down effect */
+            transform: translateY(0);
+        }
+
+        .aero-button:disabled {
+            background: linear-gradient(to bottom, #e0e0e0 0%, #c0c0c0 100%);
+            border-color: #999;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        #controls {
+            margin-bottom: 40px; /* More space below controls */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 25px; /* Increased space between control elements */
+            background-color: rgba(255, 255, 255, 0.85); /* More opaque background */
+            padding: 25px; /* More padding */
+            border-radius: 15px; /* More rounded */
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15); /* Stronger shadow */
+            backdrop-filter: blur(5px); /* Subtle glassmorphism effect */
+        }
+
+        #controls label {
+            color: #2a5a8e;
+            font-weight: 700; /* Bolder label */
+            font-size: 1.1em;
+        }
+
+        #tempo {
+            width: 200px; /* Even wider tempo slider */
+            height: 10px; /* Thicker track */
+            -webkit-appearance: none;
+            appearance: none;
+            background: #badbf2; /* Lighter blue track */
+            border-radius: 5px;
+            outline: none;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.15);
+            transition: background 0.2s;
+        }
+
+        #tempo::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px; /* Larger thumb */
+            height: 24px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+            border: 3px solid #fff; /* Thicker white border */
+        }
+
+        #tempo::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+            border: 3px solid #fff;
+        }
+
+        #tempoValue {
+            font-weight: 700;
+            color: #004d99;
+            font-size: 1.1em;
+            min-width: 40px; /* Ensure space for 3 digits */
+            text-align: center;
+        }
+
+        #instrumentSelect {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #7faccc;
+            background-color: #e6f2ff;
+            color: #2a5a8e;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            appearance: none; /* Remove default arrow */
+            -webkit-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%232a5a8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+
+        #sequencer-grid {
+            display: grid;
+            border: 1px solid #7faccc; /* Stronger border for the grid */
+            box-shadow: 0 0 25px rgba(0,0,0,0.2); /* Stronger, softer shadow */
+            background-color: rgba(240, 248, 255, 0.9); /* More opaque background for grid */
+            padding: 20px; /* More padding */
+            border-radius: 15px; /* More rounded */
+            overflow-x: auto; /* Allow horizontal scrolling */
+            -webkit-overflow-scrolling: touch;
+            width: 98%; /* Wider responsive width */
+            max-width: 1200px; /* Increased max width */
+            min-height: 300px; /* More minimum height */
+            box-sizing: border-box;
+        }
+
+        .note-row {
+            display: contents;
+        }
+
+        .note-cell {
+            width: 45px; /* Slightly larger cell size */
+            height: 45px; /* Slightly larger cell size */
+            border: 1px solid #b3d1f0;
+            background-color: #e6f2ff;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px; /* Slightly larger font for note labels */
+            color: #666;
+            box-sizing: border-box;
+            border-radius: 6px; /* More rounding for cells */
+        }
+
+        .note-label {
+            grid-column: 1;
+            background-color: #c9e2fb;
+            font-weight: 700; /* Bolder label */
+            color: #004d99;
+            border-right: 2px solid #a7c8ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-right: 5px; /* Add some padding to prevent text touching border */
+        }
+
+        .note-cell.active {
+            background-color: #8cbbff;
+            border-color: #5d92b9;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.3); /* Stronger inner shadow */
+        }
+
+        .note-cell.current-beat {
+            box-shadow: 0 0 10px 4px rgba(255, 165, 0, 0.9); /* Brighter, larger orange glow */
+            z-index: 1;
+            border-color: orange; /* Highlight border as well */
+        }
+
+        /* Message Box Styling */
+        #messageBox {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.95); /* More opaque */
+            border: 2px solid #7faccc; /* Thicker border */
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.35); /* Stronger shadow */
+            padding: 30px; /* More padding */
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px; /* More space */
+            max-width: 450px; /* Wider max width */
+            text-align: center;
+            font-size: 18px; /* Larger font */
+            color: #333;
+            backdrop-filter: blur(8px); /* More blur */
+        }
+
+        #messageBox p {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        #messageBox button {
+            margin-top: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .aero-button {
+                padding: 10px 20px;
+                font-size: 15px;
+            }
+            #controls {
+                flex-direction: column;
+                width: 95%;
+                gap: 15px;
+                padding: 15px;
+            }
+            .note-cell, .note-label {
+                width: 35px; /* Smaller cells on mobile */
+                height: 35px;
+                font-size: 10px;
+            }
+            #sequencer-grid {
+                padding: 10px;
+                width: 98%;
+                max-width: none; /* Allow full width on small screens */
+            }
+            #tempo {
+                width: 150px;
+            }
+            #messageBox {
+                max-width: 90%;
+                padding: 20px;
+                font-size: 16px;
+            }
+            #instrumentSelect {
+                width: 90%; /* Make select full width on mobile */
+                box-sizing: border-box;
+            }
+        }
+
+        /* Icon styling */
+        .aero-button svg {
+            color: #004d99; /* Darker blue icon color */
+            transition: color 0.2s ease;
+        }
+        .aero-button:hover svg {
+            color: #003366; /* Even darker on hover */
+        }
+    </style>
+</head>
+<body>
+    <h1>Music Studio by Jamessoft</h1>
+
+    <div id="controls">
+        <button id="playButton" class="aero-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Play
+        </button>
+        <button id="stopButton" class="aero-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></rect></svg>
+            Stop
+        </button>
+        <label for="tempo" style="color: #2a5a8e; font-weight: 700;">Tempo (BPM):</label>
+        <input type="range" id="tempo" min="60" max="240" value="120">
+        <span id="tempoValue">120</span>
+
+        <label for="instrumentSelect" style="color: #2a5a8e; font-weight: 700;">Instrument:</label>
+        <select id="instrumentSelect">
+            <option value="sine">Pure Sine</option>
+            <option value="square">Digital Square</option>
+            <option value="sawtooth">Bright Saw</option>
+            <option value="triangle">Soft Triangle</option>
+            <option value="lofi_beep">Lofi Beep</option>
+        </select>
+
+        <button id="addMeasuresButton" class="aero-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-square"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+            Add 4 Beats
+        </button>
+        <button id="exportWavButton" class="aero-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Export WAV
+        </button>
+    </div>
+
+    <div id="sequencer-grid">
+        <!-- Grid cells will be generated here by JavaScript -->
+    </div>
+
+    <!-- Custom Message Box -->
+    <div id="messageBox">
+        <p id="messageText"></p>
+        <button id="messageBoxOkButton" class="aero-button">OK</button>
+    </div>
+
+    <script>
+        // Define the notes and their corresponding frequencies
+        const notes = [
+            'C6', 'B5', 'A#5', 'A5', 'G#5', 'G5', 'F#5', 'F5', 'E5', 'D#5', 'D5', 'C#5',
+            'C5', 'B4', 'A#4', 'A4', 'G#4', 'G4', 'F#4', 'F4', 'E4', 'D#4', 'D4', 'C#4',
+            'C4' // Starting from middle C and going up two octaves (chromatic)
+        ].reverse(); // Reverse to have lower notes at the bottom of the grid
+
+        const frequencies = {
+            'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63, 'F4': 349.23,
+            'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88,
+            'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'E5': 659.25, 'F5': 698.46,
+            'F#5': 739.99, 'G5': 783.99, 'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77,
+            'C6': 1046.50
+        };
+
+        let totalBeats = 16; // Initial number of beats (columns) in the sequencer
+
+        let audioCtx; // Web Audio API Context for real-time playback
+        let sequencerInterval;
+        let currentBeat = 0;
+        let tempo = 120; // BPM (Beats Per Minute)
+        let selectedInstrument = 'sine'; // Default instrument
+
+        // DOM elements
+        const sequencerGrid = document.getElementById('sequencer-grid');
+        const playButton = document.getElementById('playButton');
+        const stopButton = document.getElementById('stopButton');
+        const tempoInput = document.getElementById('tempo');
+        const tempoValueSpan = document.getElementById('tempoValue');
+        const instrumentSelect = document.getElementById('instrumentSelect'); // New instrument selector
+        const addMeasuresButton = document.getElementById('addMeasuresButton');
+        const exportWavButton = document.getElementById('exportWavButton');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const messageBoxOkButton = document.getElementById('messageBoxOkButton');
+
+        // 2D array to store the active (selected) state of each note cell
+        const activeNotes = Array(notes.length).fill(null).map(() => Array(totalBeats).fill(false));
+
+        // Function to display a custom message box instead of alert()
+        function showMessageBox(message) {
+            messageText.textContent = message;
+            messageBox.style.display = 'flex';
+        }
+
+        // Event listener for the OK button in the message box
+        messageBoxOkButton.addEventListener('click', () => {
+            messageBox.style.display = 'none';
+        });
+
+        /**
+         * Creates and initializes the sequencer grid in the DOM.
+         * This function now correctly appends new beats horizontally by inserting
+         * cells after the last cell of their respective row.
+         * @param {number} [startBeat=0] - The beat index from which to start creating cells.
+         */
+        function createGrid(startBeat = 0) {
+            // If creating the grid for the first time (startBeat is 0)
+            if (startBeat === 0) {
+                sequencerGrid.innerHTML = ''; // Clear existing grid to rebuild
+                // Set grid columns initially
+                sequencerGrid.style.gridTemplateColumns = `auto repeat(${totalBeats}, 1fr)`;
+            }
+
+            // Update grid columns style to reflect current totalBeats (important for dynamic resizing)
+            sequencerGrid.style.gridTemplateColumns = `auto repeat(${totalBeats}, 1fr)`;
+
+
+            notes.forEach((note, noteIndex) => {
+                let lastElementInRow;
+
+                if (startBeat === 0) {
+                    // Only add the note label cell once during initial grid creation
+                    const noteLabelCell = document.createElement('div');
+                    noteLabelCell.classList.add('note-cell', 'note-label');
+                    noteLabelCell.textContent = note;
+                    noteLabelCell.dataset.noteIndex = noteIndex; // Add data-note-index to label
+                    sequencerGrid.appendChild(noteLabelCell);
+                    lastElementInRow = noteLabelCell;
+                } else {
+                    // When adding new beats, find the last existing cell for this noteIndex
+                    const existingCellsInRow = sequencerGrid.querySelectorAll(`.note-cell[data-note-index="${noteIndex}"]`);
+                    // Find the last actual beat cell, not the label
+                    lastElementInRow = existingCellsInRow[existingCellsInRow.length - 1];
+
+                    // Fallback in case of unexpected state
+                    if (!lastElementInRow) {
+                        console.error("Could not find last element in row for noteIndex:", noteIndex, "when adding new beats.");
+                        return; // Skip this row if we can't find a reference point
+                    }
+                }
+
+                // Add beat cells for the current row, starting from `startBeat`
+                for (let beat = startBeat; beat < totalBeats; beat++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('note-cell');
+                    cell.dataset.noteIndex = noteIndex; // Store note index
+                    cell.dataset.beat = beat;           // Store beat index
+                    cell.addEventListener('click', () => {
+                        cell.classList.toggle('active'); // Toggle 'active' class for visual feedback
+                        activeNotes[noteIndex][beat] = !activeNotes[noteIndex][beat]; // Toggle data state
+                    });
+
+                    // Insert the new cell immediately after the `lastElementInRow`
+                    lastElementInRow.after(cell);
+                    // Update `lastElementInRow` to the newly added cell for the next iteration in this row
+                    lastElementInRow = cell;
+                }
+            });
+
+            // After all cells are created/updated, re-apply active states
+            activeNotes.forEach((row, noteIndex) => {
+                row.forEach((isActive, beat) => {
+                    if (isActive) {
+                        const cell = sequencerGrid.querySelector(`.note-cell[data-note-index="${noteIndex}"][data-beat="${beat}"]`);
+                        if (cell) {
+                            cell.classList.add('active');
+                        }
+                    }
+                });
+            });
+        }
+
+        /**
+         * Adds a specified number of new beat columns to the sequencer.
+         * @param {number} beatsToAdd - The number of beats to add.
+         */
+        function addMeasures(beatsToAdd) {
+            const oldTotalBeats = totalBeats;
+            totalBeats += beatsToAdd;
+
+            // Expand the activeNotes array for the new beats
+            notes.forEach((_, noteIndex) => {
+                for (let i = 0; i < beatsToAdd; i++) {
+                    activeNotes[noteIndex].push(false);
+                }
+            });
+
+            // Re-render the grid, starting from the oldTotalBeats to append new cells horizontally
+            createGrid(oldTotalBeats);
+        }
+
+        /**
+         * Plays a single note using the Web Audio API.
+         * The oscillator type and duration are now dynamic based on selected instrument.
+         * @param {number} frequency - The frequency of the note in Hz.
+         * @param {number} duration - The base duration of the note in seconds (e.g., beat duration).
+         * @param {AudioContext} context - The audio context to use (real-time or offline).
+         * @param {number} startTime - The time at which to start the note (relative to context.currentTime).
+         * @param {string} instrumentType - The type of instrument selected ('sine', 'square', 'sawtooth', 'triangle', 'lofi_beep').
+         */
+        function playNote(frequency, duration, context, startTime, instrumentType) {
+            if (!context) return;
+
+            const osc = context.createOscillator();
+            const gain = context.createGain();
+
+            // Set oscillator type based on selected instrument
+            if (instrumentType === 'lofi_beep') {
+                osc.type = 'square'; // Lofi beep uses square wave
+                duration *= 0.1; // Make lofi beeps very short
+            } else {
+                osc.type = instrumentType; // Use selected waveform
+            }
+
+            osc.frequency.setValueAtTime(frequency, startTime);
+
+            gain.gain.setValueAtTime(0.5, startTime); // Initial volume
+            // Exponential ramp to fade out the note to avoid clicks
+            gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+            osc.connect(gain);
+            gain.connect(context.destination);
+
+            osc.start(startTime);
+            osc.stop(startTime + duration + 0.05); // Stop slightly after duration to ensure fade-out completes
+        }
+
+        /**
+         * Highlights the current beat column in the sequencer grid.
+         * Removes highlight from the previous beat.
+         * @param {number} beat - The index of the current beat to highlight.
+         */
+        function highlightCurrentBeat(beat) {
+            // Remove highlight from all cells first to handle edge cases or restarts cleanly
+            const allCells = document.querySelectorAll('.note-cell');
+            allCells.forEach(cell => cell.classList.remove('current-beat'));
+
+            // Add highlight to cells in the current beat column
+            const currentBeatCells = document.querySelectorAll(`.note-cell[data-beat="${beat}"]`);
+            currentBeatCells.forEach(cell => cell.classList.add('current-beat'));
+        }
+
+        /**
+         * Starts the sequencer playback.
+         * Iterates through beats, plays active notes, and updates the highlight.
+         */
+        function startSequencer() {
+            // Stop any previous interval to ensure clean start
+            stopSequencer();
+
+            // Always create a new AudioContext (or re-use if already created and not closed)
+            // and ensure it's in a running state, triggered by user interaction.
+            if (!audioCtx || audioCtx.state === 'closed') {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            // Attempt to resume the audio context. This is crucial for autoplay policies.
+            // This is an async operation, so we proceed with the sequencer logic *after* it resolves.
+            audioCtx.resume().then(() => {
+                console.log("AudioContext resumed successfully.");
+                startSequencerLogic();
+            }).catch(e => console.error("Error resuming AudioContext:", e));
+        }
+
+        /**
+         * Contains the core logic for starting the sequencer interval.
+         * Separated to be called after AudioContext is confirmed to be running.
+         */
+        function startSequencerLogic() {
+            const beatDurationMs = (60 / tempo) * 1000; // Duration of one beat in milliseconds
+            const beatDurationSec = beatDurationMs / 1000; // Duration of one beat in seconds
+
+            // Clear any lingering interval just in case
+            clearInterval(sequencerInterval);
+
+            sequencerInterval = setInterval(() => {
+                highlightCurrentBeat(currentBeat); // Highlight the current beat column
+
+                // Play notes for the current beat
+                notes.forEach((note, noteIndex) => {
+                    if (activeNotes[noteIndex][currentBeat]) {
+                        // Pass the currently selected instrument type to playNote
+                        if (audioCtx && audioCtx.state === 'running') {
+                             playNote(frequencies[note], beatDurationSec * 0.8, audioCtx, audioCtx.currentTime, selectedInstrument);
+                        } else {
+                            console.warn("AudioContext not running when attempting to play note. State:", audioCtx ? audioCtx.state : 'null');
+                        }
+                    }
+                });
+
+                currentBeat = (currentBeat + 1) % totalBeats; // Move to the next beat, loop if at end
+            }, beatDurationMs);
+
+            playButton.disabled = true; // Disable play button while playing
+            stopButton.disabled = false;
+            exportWavButton.disabled = true; // Disable export while playing
+            addMeasuresButton.disabled = true; // Disable adding measures while playing
+        }
+
+
+        /**
+         * Stops the sequencer playback, clears the interval, and resets highlighting.
+         */
+        function stopSequencer() {
+            clearInterval(sequencerInterval); // Clear the interval
+            sequencerInterval = null;
+            currentBeat = 0; // Reset current beat to the beginning
+
+            // Remove all beat highlights
+            const allCells = document.querySelectorAll('.note-cell');
+            allCells.forEach(cell => cell.classList.remove('current-beat'));
+
+            // If audioCtx exists and is not already closed, suspend it instead of closing.
+            // Suspending keeps the context ready for faster resumption.
+            if (audioCtx && audioCtx.state !== 'closed' && audioCtx.state !== 'suspended') {
+                audioCtx.suspend().catch(e => console.error("Error suspending AudioContext:", e));
+            }
+            // If the audioCtx was suspended, it will remain suspended until resumed by user interaction.
+
+
+            playButton.disabled = false; // Enable play button
+            stopButton.disabled = true;
+            exportWavButton.disabled = false; // Enable export when stopped
+            addMeasuresButton.disabled = false; // Enable adding measures when stopped
+        }
+
+        /**
+         * Renders the entire sequence into an AudioBuffer using OfflineAudioContext,
+         * then converts it to a WAV file and triggers a download.
+         * It now only exports the parts where user has selected boxes.
+         */
+        async function exportWav() {
+            if (sequencerInterval) {
+                showMessageBox("Please stop playback before exporting to WAV.");
+                return;
+            }
+
+            showMessageBox("Generating WAV file... Please wait.");
+            exportWavButton.disabled = true; // Disable button during export
+
+            let lastActiveBeat = -1;
+            // Find the last beat that has any active notes
+            for (let beat = totalBeats - 1; beat >= 0; beat--) {
+                for (let noteIndex = 0; noteIndex < notes.length; noteIndex++) {
+                    if (activeNotes[noteIndex][beat]) {
+                        lastActiveBeat = beat;
+                        break; // Found an active note in this beat, no need to check other notes in this beat
+                    }
+                }
+                if (lastActiveBeat !== -1) {
+                    break; // Found the last active beat, no need to check earlier beats
+                }
+            }
+
+            if (lastActiveBeat === -1) {
+                showMessageBox("No notes selected to export. Please select some notes first.");
+                exportWavButton.disabled = false;
+                return;
+            }
+
+            const sampleRate = 44100; // Standard audio sample rate
+            const beatDurationSec = (60 / tempo) / 1; // Duration of one beat in seconds
+            // Calculate total duration based on the last active beat
+            const totalDuration = (lastActiveBeat + 1) * beatDurationSec;
+
+            // Create an OfflineAudioContext for rendering the audio into a buffer
+            const offlineCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, // 1 channel (mono)
+                                                                                            Math.ceil(totalDuration * sampleRate), // Total frames
+                                                                                            sampleRate); // Sample rate
+
+            // Schedule all notes within the offline context up to the last active beat
+            for (let beat = 0; beat <= lastActiveBeat; beat++) {
+                const beatStartTime = beat * beatDurationSec; // Start time of the current beat
+
+                notes.forEach((note, noteIndex) => {
+                    if (activeNotes[noteIndex][beat]) {
+                        // Play the note using the offline audio context, with the selected instrument
+                        playNote(frequencies[note], beatDurationSec * 0.8, offlineCtx, beatStartTime, selectedInstrument);
+                    }
+                });
+            }
+
+            try {
+                // Start rendering the audio. This returns a Promise that resolves with the AudioBuffer.
+                const renderedBuffer = await offlineCtx.startRendering();
+
+                // Get the raw audio data from the rendered buffer
+                const audioData = renderedBuffer.getChannelData(0); // Assuming mono output
+
+                // Convert floating-point audio data to 16-bit PCM (integer values)
+                const pcmData = new Int16Array(audioData.length);
+                for (let i = 0; i < audioData.length; i++) {
+                    // Clamp and scale to 16-bit signed integer range (-32768 to 32767)
+                    let s = Math.max(-1, Math.min(1, audioData[i]));
+                    pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                }
+
+                // Create a new ArrayBuffer for the WAV file, including header space
+                const dataLength = pcmData.byteLength;
+                const buffer = new ArrayBuffer(44 + dataLength); // WAV header is 44 bytes
+                const view = new DataView(buffer);
+
+                // Write WAV header (RIFF chunk)
+                writeString(view, 0, 'RIFF'); // ChunkID
+                view.setUint32(4, 36 + dataLength, true); // ChunkSize
+                writeString(view, 8, 'WAVE'); // Format
+
+                // Write fmt sub-chunk
+                writeString(view, 12, 'fmt '); // Subchunk1ID
+                view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
+                view.setUint16(20, 1, true); // AudioFormat (1 for PCM)
+                view.setUint16(22, 1, true); // NumChannels (Mono)
+                view.setUint32(24, sampleRate, true); // SampleRate
+                view.setUint32(28, sampleRate * 1 * (16 / 8), true); // ByteRate (SampleRate * NumChannels * BitsPerSample/8)
+                view.setUint16(32, 1 * (16 / 8), true); // BlockAlign (NumChannels * BitsPerSample/8)
+                view.setUint16(34, 16, true); // BitsPerSample (16-bit)
+
+                // Write data sub-chunk
+                writeString(view, 36, 'data'); // Subchunk2ID
+                view.setUint32(40, dataLength, true); // Subchunk2Size
+
+                // Write the PCM audio data
+                for (let i = 0; i < pcmData.length; i++) {
+                    view.setInt16(44 + i * 2, pcmData[i], true); // Write 16-bit integers
+                }
+
+                // Create a Blob from the ArrayBuffer and create a download link
+                const blob = new Blob([buffer], { type: 'audio/wav' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'music_studio_jam.wav';
+                document.body.appendChild(a);
+                a.click(); // Programmatically click the link to trigger download
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url); // Clean up the URL object
+
+                showMessageBox("WAV file exported successfully!");
+
+            } catch (error) {
+                console.error("Error during WAV export:", error);
+                showMessageBox("Error exporting WAV file. Please check the console for details.");
+            } finally {
+                exportWavButton.disabled = false; // Re-enable button after export attempt
+            }
+        }
+
+        // Helper function to write a string to a DataView
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        // Event Listeners for buttons and tempo slider
+        playButton.addEventListener('click', startSequencer);
+        stopButton.addEventListener('click', stopSequencer);
+        addMeasuresButton.addEventListener('click', () => addMeasures(4)); // Add 4 beats at a time
+        exportWavButton.addEventListener('click', exportWav);
+
+        // Listen for changes on the instrument select dropdown
+        instrumentSelect.addEventListener('change', (event) => {
+            selectedInstrument = event.target.value;
+            console.log("Selected instrument:", selectedInstrument);
+        });
+
+        tempoInput.addEventListener('input', (event) => {
+            tempo = parseInt(event.target.value);
+            tempoValueSpan.textContent = tempo;
+            // If sequencer is playing, restart it with the new tempo
+            if (sequencerInterval && audioCtx && audioCtx.state === 'running') {
+                startSequencerLogic(); // Call the logic directly as context is already running
+            }
+        });
+
+        // Initial setup
+        createGrid(); // Populate the sequencer grid
+        stopButton.disabled = true; // Disable stop button initially
+    </script>
+</body>
+</html>
